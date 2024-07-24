@@ -14,7 +14,7 @@ def get_notifications():
     if auth_header is None:
         return jsonify({"error": "Authorization header is missing"}), 401
 
-    token = auth_header.split(" ")[1]  # Assuming the header is in the format "Bearer <token>"
+    token = auth_header.split(" ")[1]
 
     try:
         decoded_token = decode_access_token(token)

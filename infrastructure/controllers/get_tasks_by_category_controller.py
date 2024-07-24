@@ -1,23 +1,17 @@
 from flask import Blueprint, request, jsonify
 from application.usecases.get_tasks_by_category import GetTasksByCategoryUseCase
 from infrastructure.repositories.task_repository import TaskRepository
-from infrastructure.services.rabbitmq_producer import send_verification_request
-from threading import Condition
-import threading
+import jwt
+from jwt.exceptions import InvalidTokenError
 
+# Configuración del Blueprint
 get_tasks_by_category_blueprint = Blueprint('get_tasks_by_category', __name__)
 repository = TaskRepository(connection_string='mongodb://localhost:27017/', db_name='taskMasterTask')
 get_tasks_by_category_usecase = GetTasksByCategoryUseCase(repository=repository)
 
-condition = Condition()
-verification_result = {}
+# Clave secreta para decodificar el JWT (debería estar en un archivo de configuración o variable de entorno)
+SECRET_KEY = '6f8632261860cdc4a6aed3683dbf12093202b6ad3fa9dc8dec427c752002a82b'
 
-def handle_user_verification_response(response):
-    global verification_result
-    with condition:
-        verification_result['exists'] = response.get('exists', False)
-        verification_result['user_id'] = response.get('user_id', None)
-        condition.notify()
 
 @get_tasks_by_category_blueprint.route('/tasks/category', methods=['GET'])
 def get_tasks_by_category():
@@ -25,22 +19,21 @@ def get_tasks_by_category():
     if not category:
         return jsonify({"error": "La categoría es obligatoria"}), 400
 
-    user_token = request.headers.get('Authorization', '').split(' ')[1]  # Obtener el token JWT del encabezado
+    user_token = request.headers.get('Authorization', '').split(' ')[1]
 
-    with condition:
-        # Envío de la solicitud de verificación del usuario
-        thread = threading.Thread(target=send_verification_request, args=(
-            user_token,
-            'response_queue',  # Una cola única para esta operación
-            handle_user_verification_response
-        ))
-        thread.start()
-        condition.wait(timeout=10)  # Espera a que se complete la verificación o se agote el tiempo
+    try:
+        # Decodificar el JWT
+        decoded_token = jwt.decode(user_token, SECRET_KEY, algorithms=['HS256'])
+        user_id = decoded_token.get('user_id')
+    except InvalidTokenError:
+        return jsonify({"error": "Token inválido"}), 401
+    except Exception as e:
+        print(f"Error al decodificar el token: {str(e)}")
+        return jsonify({"error": "Error al procesar el token"}), 400
 
-    # Verificación de la existencia del usuario
-    if verification_result.get('exists', False) and verification_result['user_id']:
+    if user_id:
         try:
-            tasks = get_tasks_by_category_usecase.execute(verification_result['user_id'], category)
+            tasks = get_tasks_by_category_usecase.execute(user_id, category)
             # Comprobar si los elementos de tasks son diccionarios o necesitan ser convertidos
             if tasks and isinstance(tasks[0], dict):
                 return jsonify(tasks), 200
