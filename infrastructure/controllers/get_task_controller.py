@@ -6,11 +6,11 @@ import jwt
 
 # Configuración del Blueprint
 get_task_by_id_blueprint = Blueprint('get_task_by_id', __name__)
-repository = TaskRepository(connection_string='mongodb://localhost:27017/', db_name='taskMasterTask')
+repository = TaskRepository()
 get_task_by_id_usecase = GetTaskByIdUseCase(repository=repository)
 
 # Clave secreta para decodificar el JWT (debería estar en un archivo de configuración o variable de entorno)
-SECRET_KEY = '6f8632261860cdc4a6aed3683dbf12093202b6ad3fa9dc8dec427c752002a82b'
+SECRET_KEY = ''
 
 @get_task_by_id_blueprint.route('/task/<task_id>', methods=['GET'])
 def get_task_by_id(task_id):
