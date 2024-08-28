@@ -4,7 +4,7 @@ import json
 def send_verification_request(user_token, response_queue, callback):
     try:
         connection = pika.BlockingConnection(
-            pika.ConnectionParameters(host='localhost', credentials=pika.PlainCredentials('admin', 'admin')))
+            pika.ConnectionParameters(host='localhost', credentials=pika.PlainCredentials()))
         channel = connection.channel()
         channel.queue_declare(queue='verification_queue')
         channel.queue_declare(queue=response_queue)
