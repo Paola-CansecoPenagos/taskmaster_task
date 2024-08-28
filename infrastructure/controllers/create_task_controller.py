@@ -7,11 +7,11 @@ from jwt.exceptions import InvalidTokenError
 
 # Configuración del Blueprint
 create_task_blueprint = Blueprint('create_task', __name__)
-repository = TaskRepository(connection_string='mongodb://localhost:27017/', db_name='taskMasterTask')
+repository = TaskRepository()
 create_task_usecase = CreateTaskUseCase(repository=repository)
 
 # Clave secreta para decodificar el JWT (debería estar en un archivo de configuración o variable de entorno)
-SECRET_KEY = '6f8632261860cdc4a6aed3683dbf12093202b6ad3fa9dc8dec427c752002a82b'
+SECRET_KEY = ''
 
 @create_task_blueprint.route('/', methods=['POST'])
 def create_task():
