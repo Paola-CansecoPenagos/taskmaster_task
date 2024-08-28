@@ -2,11 +2,11 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import pymongo
 from datetime import datetime
 
-client = pymongo.MongoClient("mongodb://localhost:27017/")
-db_task = client["taskMasterTask"]
-tasks_collection = db_task["tasks"]
-db_not = client["taskMasterNot"]
-notifications_collection = db_not["notifications"]
+client = pymongo.MongoClient()
+db_task = client[]
+tasks_collection = db_task[]
+db_not = client[]
+notifications_collection = db_not[]
 
 def create_notifications():
     now = datetime.now()
