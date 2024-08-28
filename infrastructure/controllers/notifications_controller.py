@@ -2,9 +2,9 @@ from flask import Blueprint, request, jsonify
 from pymongo import MongoClient
 from utils.jwt_utils import decode_access_token
 
-client = MongoClient("mongodb://localhost:27017/")
-db_not = client["taskMasterNot"]
-notifications_collection = db_not["notifications"]
+client = MongoClient()
+db_not = client[]
+notifications_collection = db_not[]
 
 notifications_blueprint = Blueprint('notifications', __name__)
 
