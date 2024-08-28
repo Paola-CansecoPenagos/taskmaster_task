@@ -6,7 +6,7 @@ from threading import Condition
 import threading
 
 user_category_summary_blueprint = Blueprint('user_category_summary', __name__)
-repository = TaskRepository(connection_string='mongodb://localhost:27017/', db_name='taskMasterTask')
+repository = TaskRepository()
 use_case = GetUserCategorySummaryUseCase(repository)
 
 condition = Condition()
